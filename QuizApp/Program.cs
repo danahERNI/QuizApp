@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using QuizApp.Data;
+using QuizApp.Profiles;
+using QuizApp.Repositories;
+using QuizApp.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +13,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddSwaggerGen();
-//builder.Services.AddAutoMapper();
-//builder.Services.AddAutoMapper(typeof(QuizProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IQuizRepository, QuizRepository>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();

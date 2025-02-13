@@ -12,8 +12,8 @@ using QuizApp.Data;
 namespace QuizApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250212092631_initial")]
-    partial class initial
+    [Migration("20250213074128_init2")]
+    partial class init2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace QuizApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("QuizApp.Entities.Answer", b =>
+            modelBuilder.Entity("QuizApp.Entities.Choice", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,32 +33,41 @@ namespace QuizApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Text")
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("QuestionId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Answers");
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("Choices");
                 });
 
             modelBuilder.Entity("QuizApp.Entities.Question", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("QuestionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionId"));
 
                     b.Property<string>("Body")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.PrimitiveCollection<string>("Choices")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("QuizId")
+                        .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("QuestionId");
+
+                    b.HasIndex("QuizId");
 
                     b.ToTable("Questions");
                 });
@@ -73,6 +82,9 @@ namespace QuizApp.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -94,20 +106,26 @@ namespace QuizApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -140,6 +158,24 @@ namespace QuizApp.Migrations
                     b.ToTable("UserQuiz");
                 });
 
+            modelBuilder.Entity("QuizApp.Entities.Choice", b =>
+                {
+                    b.HasOne("QuizApp.Entities.Question", null)
+                        .WithMany("Choices")
+                        .HasForeignKey("QuestionId");
+                });
+
+            modelBuilder.Entity("QuizApp.Entities.Question", b =>
+                {
+                    b.HasOne("QuizApp.Entities.Quiz", "Quiz")
+                        .WithMany("Question")
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Quiz");
+                });
+
             modelBuilder.Entity("QuizApp.Entities.UserQuiz", b =>
                 {
                     b.HasOne("QuizApp.Entities.Quiz", "Quiz")
@@ -159,8 +195,15 @@ namespace QuizApp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("QuizApp.Entities.Question", b =>
+                {
+                    b.Navigation("Choices");
+                });
+
             modelBuilder.Entity("QuizApp.Entities.Quiz", b =>
                 {
+                    b.Navigation("Question");
+
                     b.Navigation("UserQuiz");
                 });
 

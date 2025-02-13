@@ -1,4 +1,6 @@
-﻿using QuizApp.Entities;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using QuizApp.Data.DTO;
+using QuizApp.Entities;
 
 namespace QuizApp.Repositories.Interfaces
 {

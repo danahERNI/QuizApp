@@ -4,35 +4,36 @@ using QuizApp.Repositories.Interfaces;
 
 namespace QuizApp.Repositories
 {
-    public class AnswerRepository : IAnswerRepository
+    public class ChoiceRepository : IChoiceRepository
     {
         private readonly AppDbContext _context;
 
-        public AnswerRepository(AppDbContext context)
+        public ChoiceRepository(AppDbContext context)
         {
             _context = context;
         }
-        public Task<Answer> AddAnswer(Answer answer)
+
+        public Task<Choice?> AddChoice(Choice choice)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Answer?> DeleteAnswer(int id)
+        public Task<Choice?> DeleteChoice(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Answer>> GetAllAnswers()
+        public Task<IEnumerable<Choice>> GetAllChoices()
         {
             throw new NotImplementedException();
         }
 
-        public Task<Answer?> GetAnswerId(int id)
+        public Task<Choice?> GetChoiceId(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Answer?> UpdateAnswer(int id, Answer answer)
+        public Task<Choice?> UpdateChoice(int id, Choice choice)
         {
             throw new NotImplementedException();
         }

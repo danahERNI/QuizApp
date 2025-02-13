@@ -1,9 +1,15 @@
-﻿namespace QuizApp.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace QuizApp.Entities
 {
     public class Question
     {
-        public int Id { get; set; }
+        public int QuestionId { get; set; }
         public string Body { get; set; }
-        public List<string> Choices { get; set; }
+
+        [Required]
+        public int QuizId { get; set; }
+        public List<Choice> Choices { get; set; }
+        //public Quiz Quiz { get; set; }
     }
 }
