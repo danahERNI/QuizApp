@@ -11,5 +11,6 @@ namespace QuizApp.Repositories.Interfaces
         public Task<User> AddUser(User user);
         public Task<User?> UpdateUser(int id, User user);
         public Task<User?> DeleteUser(int id);
+        public Task<User?> ValidateUser(string email, string password);
     }
 }

@@ -20,6 +20,10 @@ namespace QuizApp.Repositories
             _mapper = mapper;
         }
 
+        public async Task<User?> ValidateUser(string email, string password)
+        {
+            return await _context.Users.SingleOrDefaultAsync(u => u.Email == email && u.Password == password);
+        }
         public async Task<User> AddUser(User user)
         {
             user.CreatedDate = DateTime.Now;
@@ -65,6 +69,12 @@ namespace QuizApp.Repositories
                 return null;
             }
 
+
+            //currentUser.Email = user.Email;
+            if (!string.IsNullOrWhiteSpace(user.Name))
+            {
+                currentUser.Name = user.Name;
+            }
             //currentUser.Email = user.Email;
             if (!string.IsNullOrWhiteSpace(user.Email))
             {

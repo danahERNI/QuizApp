@@ -11,14 +11,17 @@ namespace QuizApp.Profiles
             CreateMap<CreateUserDTO, User>();
             CreateMap<User, CreateUserDTO>();
 
+            CreateMap<LoginDTO, User>();
+            CreateMap<User, LoginDTO>();
+
             CreateMap<PatchUserDTO, User>();
             CreateMap<User, PatchUserDTO>();
 
             CreateMap<PatchQuizDTO, Quiz>();
             CreateMap<Quiz, PatchQuizDTO>();
 
-            CreateMap<CreateQuestionDTO, Question>();
-            //.ForMember(dest => dest.Choice, opt => opt.MapFrom(src => src.Choices));
+            CreateMap<CreateQuestionDTO, Question>()
+                .ForMember(dest => dest.Choices, opt => opt.MapFrom(src => src.Choices));
             CreateMap<Question, CreateQuestionDTO>();
 
             CreateMap<CreateQuizDTO, Quiz>()

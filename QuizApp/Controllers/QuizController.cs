@@ -51,8 +51,14 @@ namespace QuizApp.Controllers
             var getQuiz = await _quizRepository.GetQuizId(id);
             return Ok(getQuiz);
         }
+        [HttpGet("Mentor/{id}")]
+        public async Task<ActionResult<ICollection<TeacherQuizDTO>>> GetQuizByMentorId(int id)
+        {
+            var getQuiz = await _quizRepository.GetQuizByMentorId(id);
+            return Ok(getQuiz);
+        }
         [HttpPatch("{id}")]
-        public async Task<ActionResult<PatchQuizDTO>> UpdateQuiz(int id, PatchQuizDTO quizDTO)
+        public async Task<ActionResult<CreateQuizDTO>> UpdateQuiz(int id, CreateQuizDTO quizDTO)
         {
             var updated = _mapper.Map<Quiz>(quizDTO);
             updated.Id = id;

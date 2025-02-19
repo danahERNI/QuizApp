@@ -9,7 +9,7 @@ namespace QuizApp.Entities
 
         [Required]
         public int QuizId { get; set; }
-        public List<Choice> Choices { get; set; }
+        public ICollection<Choice> Choices{ get; set; }
         //public Quiz Quiz { get; set; }
     }
 }

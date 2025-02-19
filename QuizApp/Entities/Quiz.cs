@@ -8,8 +8,9 @@
         public DateTime? UpdatedDate { get; set; }
 
         public bool IsDeleted { get; set; }
+        public int UserId { get; set; }
        
-        public List<Question> Question { get; set; }
+        public ICollection<Question> Question { get; set; }
         public List<UserQuiz> UserQuiz { get; set; }
     }
 }
