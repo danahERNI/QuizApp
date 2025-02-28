@@ -65,6 +65,11 @@ namespace QuizApp.Repositories
             return getQuiz;
         }
 
+        public async Task<UserQuiz?> RecordQuizScore(UserQuiz userQuiz)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Quiz?> UpdateQuiz(int id, Quiz quizDto)
         {
             var currentQuiz = await _context.Quizzes

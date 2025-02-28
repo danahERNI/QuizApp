@@ -1,15 +1,19 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using System.Threading.Tasks;
 using System.Xml.XPath;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 using QuizApp.Data.DTO;
 using QuizApp.Entities;
 using QuizApp.Repositories.Interfaces;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QuizApp.Controllers
 {
@@ -19,12 +23,15 @@ namespace QuizApp.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IUserRepository userRepository, IMapper mapper)
+        public UserController(IUserRepository userRepository, IMapper mapper, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _configuration = configuration;
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
@@ -32,40 +39,45 @@ namespace QuizApp.Controllers
 
             if (user != null) 
             {
-                var claims = new[]
-                {
-                    new Claim(ClaimTypes.Name, user.Name),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Role, user.Role),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-                };
+                var token = GenerateJwtToken(user);
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-                HttpContext.Session.SetString("UserRole", user.Role);
-                HttpContext.Session.SetString("UserName", user.Name);
-                HttpContext.Session.SetString("UserId", user.Id.ToString());
-
-                return Ok(new { Id = user.Id, name = user.Name, role = user.Role});
+                return Ok(new { Id = user.Id, name = user.Name, role = user.Role, Token = token });
 
             }
 
             return Unauthorized();
         }
+        private string GenerateJwtToken(User user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireMinutes"])),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        [Authorize]
+        public IActionResult Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    
-            HttpContext.Session.Clear();
-
             return Ok();
         }
 
         [HttpGet("session-data")]
+        [Authorize]
         public IActionResult GetSessionData()
         {
             var user = HttpContext.User;
@@ -78,12 +90,6 @@ namespace QuizApp.Controllers
             var userRole = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
             var userName = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-
-            //var userRole = HttpContext.Session.GetString("UserRole");
-
-            //var userName = HttpContext.Session.GetString("UserName");
-
-            //var userId = HttpContext.Session.GetString("UserId");
             
             return Ok(new { userId = userId, userName = userName, userRole = userRole });
         }

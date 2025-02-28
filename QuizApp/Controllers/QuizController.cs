@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,7 @@ namespace QuizApp.Controllers
             _mapper = mapper;
         }
         [HttpPost]
+        [Authorize(Roles = "Teacher")]
         public async Task<ActionResult<CreateQuizDTO>> AddQuiz(CreateQuizDTO quizDTO)
         {
             var mapQuiz = _mapper.Map<Quiz>(quizDTO);
@@ -40,12 +42,14 @@ namespace QuizApp.Controllers
             return Ok(removeQuiz);
         }
         [HttpGet]
+        [Authorize]
         public async Task<IEnumerable<Quiz>> GetAllQuizzes()
         {
             var list = await _quizRepository.GetAllQuizzes();
             return list;
         }
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<CreateQuizDTO>> GetQuizId(int id)
         {
             var getQuiz = await _quizRepository.GetQuizId(id);
@@ -66,6 +70,9 @@ namespace QuizApp.Controllers
             return Ok(changeQuiz);
 
         }
+        //[HttpPost("record-quiz")]
+        //[Authorize(Roles = "Student")]
+
     }
 }
 
